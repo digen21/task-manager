@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@middlewares": ["./src/middlewares/"],
+      "@utils": ["./src/utils"],
+      "@types": ["./src/types"],
+      "@validators": ["./src/validators"],
+      "@config": ["./src/config"],
+      "@routes": ["./src/routes"],
+      "@entity": ["./src/entity"]
+    }
+  },
+  "include": ["src/**/*.ts", "index.ts"],
+  "exclude": ["node_modules", "/**/*.logs"],
+  "compileOnSave": true,
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  }
+}
