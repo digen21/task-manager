@@ -2,7 +2,7 @@ import express from "express";
 
 import { createMember, getMembers } from "@controller";
 import { isAdminRole, validate } from "@middlewares";
-import { createMemberSchema } from "@validators";
+import { createMemberSchema, getMembersSchema } from "@validators";
 
 const userRouter = express.Router();
 
@@ -13,6 +13,6 @@ userRouter.post(
   createMember,
 );
 
-userRouter.get("/members", isAdminRole, getMembers);
+userRouter.get("/members", validate(getMembersSchema), isAdminRole, getMembers);
 
 export default userRouter;

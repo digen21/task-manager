@@ -9,3 +9,10 @@ export const createMemberSchema = Joi.object({
     role: Joi.string().valid(UserRoles).optional().default(UserRoles.MEMBER),
   }),
 });
+
+export const getMembersSchema = Joi.object({
+  query: Joi.object({
+    page: Joi.number().default(1),
+    limit: Joi.number().default(10),
+  }),
+});

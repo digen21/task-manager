@@ -1,6 +1,7 @@
 import { AppDataSource } from "@config";
 import { User } from "@entity";
-import { GetByUserInput, UpdateUserInput } from "@types";
+import { GetByUserInput, UpdateUserInput, UserRoles } from "@types";
+import { getPaginationOptions } from "@utils";
 import { FindManyOptions, FindOptionsWhere } from "typeorm";
 
 class UserService {
@@ -34,6 +35,33 @@ class UserService {
   getAll(args?: FindManyOptions<GetByUserInput>) {
     return this.useRepository.find(args);
   }
+  findMembersWithPagination = async (
+    organizationId: string,
+    page: number,
+    limit: number,
+  ) => {
+    const {
+      limit: take,
+      page: curPage,
+      skip,
+    } = getPaginationOptions(page, limit);
+
+    const [data, total] = await this.useRepository.findAndCount({
+      where: { organizationId, role: UserRoles.MEMBER },
+      skip,
+      take: take,
+    });
+
+    return {
+      data,
+      meta: {
+        total,
+        page: curPage,
+        limit: take,
+        totalPages: Math.ceil(total / take),
+      },
+    };
+  };
 }
 
 const userService = new UserService();

@@ -6,7 +6,7 @@ import { AppDataSource as dataSource } from "@config";
 import { User } from "@entity";
 import { userService } from "@services";
 import { UserRoles } from "@types";
-import { catchAsync, ServerError } from "@utils";
+import { catchAsync, sanitizeUserResponse, ServerError } from "@utils";
 
 // only work for admin
 export const createMember = catchAsync(
@@ -36,7 +36,7 @@ export const createMember = catchAsync(
 
     const hashPassword = await bcrypt.hash(password, 10);
 
-    const result: Omit<User, "password"> = await userService.create({
+    const result = await userService.create({
       email,
       password: hashPassword,
       role: req.body.role ?? UserRoles.MEMBER,
@@ -46,7 +46,7 @@ export const createMember = catchAsync(
     if (result) {
       return res.status(httpStatus.CREATED).send({
         message: "Member created successfully",
-        data: result,
+        data: sanitizeUserResponse(result),
         status: httpStatus.CREATED,
       });
     }
@@ -58,20 +58,17 @@ export const createMember = catchAsync(
   },
 );
 
-export const getMembers = catchAsync(async (req: Request, res: Response) => {
+export const getMembers = catchAsync(async (req, res) => {
   const { organizationId } = req.user as User;
+  const { page = 1, limit = 10 } = req.query;
 
-  const members = await userService.getAll({
-    where: { organizationId, role: UserRoles.MEMBER },
-    order: { createdAt: "desc" },
-    select: {
-      password: false,
-      deletedAt: false,
-    },
-  });
+  const result = await userService.findMembersWithPagination(
+    organizationId,
+    Number(page),
+    Number(limit),
+  );
 
-  return res.status(httpStatus.OK).send({
-    data: members,
-    status: httpStatus.OK,
+  res.status(httpStatus.OK).send({
+    result,
   });
 });
