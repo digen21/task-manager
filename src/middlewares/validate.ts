@@ -27,9 +27,9 @@ const validate = (schema: ObjectSchema) => {
       );
     }
 
-    if (req.body) Object.assign(req.body, value);
-    if (req.query) Object.assign(req.query, value);
-    if (req.params) Object.assign(req.params, value);
+    if (req.body) Object.assign(req.body, value.body);
+    if (req.query) Object.assign(req.query, value.query);
+    if (req.params) Object.assign(req.params, value.params);
     next();
   };
 };

@@ -37,9 +37,7 @@ const errorHandler = (
   }
 
   // unhandled error
-  logger.error("Unwanted Error: ", {
-    err,
-  });
+  logger.error("Unwanted Error: ", err);
   return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
     message: "Internal Server Error",
     status: httpStatus.INTERNAL_SERVER_ERROR,

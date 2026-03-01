@@ -6,6 +6,7 @@ export const createTaskSchema = Joi.object({
     title: Joi.string().required(),
     projectId: Joi.string().required(),
     assigneeId: Joi.string().optional(),
+    dueDate: Joi.date().required(),
   }),
 });
 
@@ -15,9 +16,25 @@ export const getIdParamsSchema = Joi.object({
   }),
 });
 
+export const getTaskAnalyticsSchema = Joi.object({
+  query: Joi.object({
+    projectId: Joi.string().required(),
+    from: Joi.date().iso().required(),
+    to: Joi.date().iso().required(),
+  }),
+});
+
+export const getTaskIdParamsSchema = Joi.object({
+  params: Joi.object({
+    taskId: Joi.string().required(),
+  }),
+});
+
 export const getTasksSchema = Joi.object({
   query: Joi.object({
     projectId: Joi.string().required(),
+    page: Joi.number().default(1),
+    limit: Joi.number().default(10),
   }),
 });
 
@@ -31,5 +48,7 @@ export const updateTaskSchema = Joi.object({
       .valid(...Object.values(TaskStatus))
       .optional(),
     assigneeId: Joi.string().optional(),
-  }).or("title", "status", "assigneeId"),
+    dueDate: Joi.date().optional(),
+    completedAt: Joi.date().optional(),
+  }),
 });

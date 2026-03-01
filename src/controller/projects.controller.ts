@@ -5,7 +5,7 @@ import { AppDataSource as dataSource } from "@config";
 import { Project, ProjectMember, User } from "@entity";
 import { projectService, userService } from "@services";
 import { UserRoles } from "@types";
-import { catchAsync, ServerError } from "@utils";
+import { catchAsync, getPaginationOptions, ServerError } from "@utils";
 
 export const createProject = catchAsync(async (req: Request, res: Response) => {
   const { name } = req.body;
@@ -94,7 +94,11 @@ export const createProjectMember = catchAsync(
 
 export const getProjects = catchAsync(async (req: Request, res: Response) => {
   const { organizationId, role, id } = req.user as User;
-  const result = dataSource
+
+  const { page = 1, limit = 10 } = req.query;
+  const { skip } = getPaginationOptions(Number(page), Number(limit));
+
+  const query = dataSource
     .getRepository(Project)
     .createQueryBuilder("p")
     .select(["p.id", "p.name", "p.createdAt"])
@@ -102,7 +106,7 @@ export const getProjects = catchAsync(async (req: Request, res: Response) => {
 
   // send current user project if not a admin user
   if (role === UserRoles.MEMBER) {
-    result.innerJoin(
+    query.innerJoin(
       ProjectMember,
       "pm",
       "pm.project = p.id AND pm.user = :userId",
@@ -110,36 +114,60 @@ export const getProjects = catchAsync(async (req: Request, res: Response) => {
     );
   }
 
-  const projects = await result.orderBy("p.created_at", "DESC").getMany();
+  const [projects, total] = await Promise.all([
+    query
+      .clone()
+      .orderBy("p.created_at", "DESC")
+      .skip(skip)
+      .take(Number(limit))
+      .getMany(),
+    query.clone().getCount(),
+  ]);
 
   return res.status(httpStatus.OK).json({
     data: projects,
     status: httpStatus.OK,
+    meta: {
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / Number(limit)),
+    },
   });
 });
 
-export const getProjectMembers = catchAsync(
-  async (req: Request, res: Response) => {
-    const { projectId } = req.params as { projectId: string };
-    const { id } = req.user as User;
+export const getProjectMembers = catchAsync(async (req, res) => {
+  const { projectId } = req.params as { projectId: string };
+  const { id } = req.user as User;
+  const { page = 1, limit = 10 } = req.query;
 
-    const members = await dataSource
-      .getRepository(ProjectMember)
-      .createQueryBuilder("pm")
-      .innerJoin(
-        ProjectMember,
-        "me",
-        "me.project = pm.project AND me.user = :userId",
-        { userId: id },
-      )
-      .leftJoin("pm.user", "user")
-      .select(["pm.id", "pm.role", "user.id", "user.email"])
-      .where("pm.project = :projectId", { projectId })
-      .getMany();
+  const { skip } = getPaginationOptions(Number(page), Number(limit));
 
-    return res.status(httpStatus.OK).json({
-      data: members,
-      status: httpStatus.OK,
-    });
-  },
-);
+  const qb = dataSource
+    .getRepository(ProjectMember)
+    .createQueryBuilder("pm")
+    .innerJoin(
+      ProjectMember,
+      "me",
+      "me.project = pm.project AND me.user = :userId",
+      { userId: id },
+    )
+    .leftJoin("pm.user", "user")
+    .select(["pm.id", "pm.role", "user.id", "user.email"])
+    .where("pm.project = :projectId", { projectId });
+
+  const [members, total] = await Promise.all([
+    qb.clone().skip(skip).take(Number(limit)).getMany(),
+    qb.clone().getCount(),
+  ]);
+
+  res.status(httpStatus.OK).json({
+    data: members,
+    meta: {
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / Number(limit)),
+    },
+  });
+});

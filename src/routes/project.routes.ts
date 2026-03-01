@@ -12,6 +12,7 @@ import {
   createProjectMemberSchema,
   createProjectSchema,
   getProjectMemberSchema,
+  getProjectsSchema,
 } from "@validators";
 
 const projectRouter = express.Router();
@@ -33,6 +34,7 @@ projectRouter.post(
 projectRouter.get(
   "/",
   allowedRoles([UserRoles.ADMIN, UserRoles.MEMBER]),
+  validate(getProjectsSchema),
   getProjects,
 );
 projectRouter.get(

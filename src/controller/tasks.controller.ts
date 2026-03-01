@@ -4,12 +4,13 @@ import httpStatus from "http-status";
 import { AppDataSource as dataSource } from "@config";
 import { ActivityLogs, Task, User } from "@entity";
 import { projectService } from "@services";
-import { catchAsync, mapTask, ServerError } from "@utils";
+import { catchAsync, getPaginationOptions, mapTask, ServerError } from "@utils";
 import { IsNull } from "typeorm";
+import { TaskStatus } from "@types";
 
 export const createTask = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { title, status, projectId, assigneeId } = req.body;
+    const { title, status, projectId, assigneeId, dueDate } = req.body;
     const { id: userId, organizationId } = req.user as User;
 
     const project = await projectService.get({
@@ -44,6 +45,7 @@ export const createTask = catchAsync(
         status,
         projectId,
         assigneeId: assigneeId ?? userId,
+        dueDate,
       });
 
       await txn.getRepository(ActivityLogs).save({
@@ -75,6 +77,7 @@ export const getTaskInfo = catchAsync(async (req: Request, res: Response) => {
       "task.id",
       "task.title",
       "task.status",
+      "task.due_date",
       "task.version",
       "task.createdAt",
       "project.id",
@@ -102,34 +105,55 @@ export const getTaskInfo = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const getTasks = catchAsync(async (req: Request, res: Response) => {
-  const { projectId } = req.query as { projectId: string };
+  const { projectId, page = 1, limit = 10 } = req.query;
 
-  const tasks = await dataSource
+  const { skip, limit: tale } = getPaginationOptions(
+    Number(page),
+    Number(limit),
+  );
+
+  const query = dataSource
     .getRepository(Task)
     .createQueryBuilder("task")
-    .leftJoinAndSelect("task.project", "project")
-    .leftJoinAndSelect("task.assignee", "assignee")
+    .leftJoin("task.project", "project")
+    .leftJoin("task.assignee", "assignee")
     .leftJoin(ActivityLogs, "al", "al.taskId = task.id")
     .leftJoin("al.performedBy", "creator")
-    .select([
-      "task.id",
-      "task.title",
-      "task.status",
-      "task.version",
-      "task.createdAt",
-      "project.id",
-      "project.name",
-      "assignee.id",
-      "assignee.email",
-      "creator.id",
-      "creator.email",
-    ])
     .where("task.project = :projectId", { projectId })
-    .andWhere("task.deletedAt IS NULL")
-    .getRawMany();
+    .andWhere("task.deletedAt IS NULL");
+
+  const [tasks, total] = await Promise.all([
+    query
+      .clone()
+      .select([
+        "task.id",
+        "task.title",
+        "task.status",
+        "task.due_date",
+        "task.version",
+        "task.createdAt",
+        "project.id",
+        "project.name",
+        "assignee.id",
+        "assignee.email",
+        "creator.id",
+        "creator.email",
+      ])
+      .skip(skip)
+      .take(tale)
+      .getRawMany(),
+
+    query.clone().getCount(),
+  ]);
 
   return res.status(httpStatus.OK).send({
     data: tasks.map(mapTask),
+    meta: {
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / Number(limit)),
+    },
     status: httpStatus.OK,
   });
 });
@@ -137,7 +161,12 @@ export const getTasks = catchAsync(async (req: Request, res: Response) => {
 export const updateTask = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params as { id: string };
-    const { status } = req.body;
+    const { status, completedAt } = req.body as Partial<Task>;
+
+    if (status === TaskStatus.DONE && !completedAt) {
+      req.body.completedAt = new Date();
+    }
+
     const { id: userId } = req.user as User;
 
     await dataSource.transaction(async (txn) => {
@@ -162,7 +191,7 @@ export const updateTask = catchAsync(
       const result = await txn.update(
         Task,
         { id, version: task.version },
-        { status },
+        req.body,
       );
 
       if (result.affected !== 1) {

@@ -43,6 +43,12 @@ export class Task {
   })
   createdAt: Date;
 
+  @Index("task_due_date_idx")
+  @Column({
+    name: "due_date",
+  })
+  dueDate: Date;
+
   @UpdateDateColumn({
     name: "updated_at",
   })

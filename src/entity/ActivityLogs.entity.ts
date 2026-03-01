@@ -28,14 +28,18 @@ export class ActivityLogs {
   })
   createdAt: Date;
 
-  @ManyToOne(() => Task)
+  @ManyToOne(() => Task, (task) => task.id, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({
     name: "task",
     foreignKeyConstraintName: "activity_logs_task_fkey_id",
   })
   task: Task;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, (performedBy) => performedBy.id, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({
     foreignKeyConstraintName: "activity_logs_performed_by_fkey_id",
     name: "performed_by",

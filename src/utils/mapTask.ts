@@ -5,6 +5,7 @@ const mapTask = (row: RawTaskRow) => ({
   title: row.task_title,
   status: row.task_status,
   version: row.task_version,
+  dueDate: row.due_date,
   createdAt: row.task_created_at,
   project: row.project_id && {
     id: row.project_id,

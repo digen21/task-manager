@@ -19,4 +19,15 @@ export const getProjectMemberSchema = Joi.object({
   params: Joi.object({
     projectId: Joi.string().required(),
   }),
+  query: Joi.object({
+    page: Joi.number().default(1),
+    limit: Joi.number().default(10),
+  }),
+});
+
+export const getProjectsSchema = Joi.object({
+  query: Joi.object({
+    page: Joi.number().default(1),
+    limit: Joi.number().default(10),
+  }),
 });
