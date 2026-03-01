@@ -1,5 +1,6 @@
 import { DataSource } from "typeorm";
 
+import { entities } from "@entity";
 import { logger } from "@utils";
 import env from "./envVariable";
 
@@ -13,7 +14,7 @@ const AppDataSource = new DataSource({
   synchronize: false,
   logging: false,
   migrationsTableName: "typeorm_migrations",
-  entities: ["dist/**/*.entity{.ts,.js}"],
+  entities: entities,
   migrations: ["dist/migrations/*{.ts,.js}"],
 });
 

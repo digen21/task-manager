@@ -3,7 +3,7 @@ import express from "express";
 import httpStatus from "http-status";
 
 import { connectDatabase, env } from "@config";
-import { errorHandler, requestLogger } from "@middlewares";
+import { errorHandler, initPassport, requestLogger } from "@middlewares";
 import useRoutes from "@routes";
 import { logger } from "@utils";
 
@@ -16,6 +16,8 @@ app.use(cors());
 app.use(express.json());
 
 connectDatabase();
+
+initPassport(app);
 
 app.get("/health", (_, res) =>
   res.status(httpStatus.OK).json({

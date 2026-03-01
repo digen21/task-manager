@@ -19,7 +19,9 @@
       "@validators": ["./src/validators"],
       "@config": ["./src/config"],
       "@routes": ["./src/routes"],
-      "@entity": ["./src/entity"]
+      "@entity": ["./src/entity"],
+      "@services": ["./src/services"],
+      "@controller": ["./src/controller"]
     }
   },
   "include": ["src/**/*.ts", "index.ts"],

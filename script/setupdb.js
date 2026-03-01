@@ -20,6 +20,7 @@ const setupDb = () => {
   connection.connect();
 
   console.log("Init database setup.");
+  connection.query(`DROP SCHEMA IF EXISTS ${DATABASE}`);
   connection.query(`DROP DATABASE IF EXISTS ${DATABASE};`);
   connection.query(`CREATE DATABASE ${DATABASE};`);
   console.log("Database created.");

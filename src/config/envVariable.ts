@@ -14,6 +14,8 @@ const env = {
   DATABASE_USERNAME: value.DATABASE_USERNAME,
   DATABASE_PASSWORD: value.DATABASE_PASSWORD,
   DATABASE: value.DATABASE,
+  JWT_SECRET: value.JWT_SECRET,
+  EXPIRY_TIME: "5d",
   IS_DEV: value.NODE_ENV === "development",
 };
 

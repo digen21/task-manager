@@ -8,6 +8,7 @@ const envValidatorSchema = Joi.object({
   DATABASE_USERNAME: Joi.string().required(),
   DATABASE_PASSWORD: Joi.string().required(),
   DATABASE: Joi.string().required(),
+  JWT_SECRET: Joi.string().required(),
 }).unknown(true);
 
 export default envValidatorSchema;

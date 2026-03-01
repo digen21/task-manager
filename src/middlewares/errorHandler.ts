@@ -2,16 +2,17 @@ import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 
 import { ErrorType } from "@types";
-import { ServerError } from "@utils";
+import { logger, ServerError } from "@utils";
 
 const errorHandler = (
   err: ErrorType,
   _: Request,
   res: Response,
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next: NextFunction,
 ) => {
+  logger.error(err);
+
   if (err instanceof ServerError)
     return res.status(err.status).send({
       status: err.status,
