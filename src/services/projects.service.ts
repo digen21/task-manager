@@ -1,36 +1,46 @@
 import { AppDataSource } from "@config";
-import { Project } from "@entity";
+import { Project, ProjectMember } from "@entity";
 import { GetByProjectInput, UpdateProjectInput } from "@types";
+import { FindManyOptions, FindOptionsWhere } from "typeorm";
 
 class ProjectService {
   constructor(
-    private readonly organizationRepository = AppDataSource.getRepository(
-      Project,
+    private readonly projectRepository = AppDataSource.getRepository(Project),
+    private readonly projectMemberRepository = AppDataSource.getRepository(
+      ProjectMember,
     ),
     private readonly dataSource = AppDataSource,
   ) {}
 
-  create(createOrganizationInput: Project) {
-    return this.dataSource
-      .createQueryBuilder()
-      .insert()
-      .into(Project)
-      .values(createOrganizationInput)
-      .execute();
+  create(createProjectInput: Partial<Project>) {
+    return this.projectRepository.save(createProjectInput);
   }
-  update(id: string, updateOrganizationInput: UpdateProjectInput) {
+
+  update(id: string, updateProjectInput: UpdateProjectInput) {
     return this.dataSource
       .createQueryBuilder()
       .update(Project)
-      .set(updateOrganizationInput)
+      .set(updateProjectInput)
       .where("id = :id", { id })
       .execute();
   }
-  get(args: GetByProjectInput) {
-    return this.organizationRepository.findOneBy(args);
+  get(args?: FindOptionsWhere<GetByProjectInput>) {
+    return this.projectRepository.findOneBy(args);
   }
-  getAll(args: GetByProjectInput) {
-    return this.organizationRepository.find({ where: args });
+  getAll(args?: FindManyOptions<GetByProjectInput>) {
+    return this.projectRepository.find(args);
+  }
+
+  createProjectMember(createProjectMemberInput: Partial<ProjectMember>) {
+    return this.projectMemberRepository.save(createProjectMemberInput);
+  }
+
+  getProjectMembers(args?: FindManyOptions<ProjectMember>) {
+    return this.projectMemberRepository.find(args);
+  }
+
+  getProjectMember(args?: FindOptionsWhere<ProjectMember>) {
+    return this.projectMemberRepository.findOneBy(args);
   }
 }
 

@@ -2,54 +2,51 @@ import bcrypt from "bcrypt";
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 
-import { organizationService, userService } from "@services";
+import { AppDataSource as dataSource } from "@config";
+import { User } from "@entity";
+import { userService } from "@services";
 import { UserRoles } from "@types";
 import { catchAsync, ServerError } from "@utils";
 
 // only work for admin
 export const createMember = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { email, password, organizationId } = req.body;
+    const { email, password } = req.body;
+    const { organizationId } = req.user as User;
 
-    const existsOrganizartion = await organizationService.get({
-      id: organizationId,
-    });
+    // user already belong to organization
+    const existsUser = await dataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .select("user.id")
+      .where(
+        "LOWER(user.email) = LOWER(:email) AND user.organization = :organizationId",
+        { email, organizationId },
+      )
+      .getOne();
 
-    if (!existsOrganizartion)
+    if (existsUser) {
       return next(
         new ServerError({
-          message: `Organization with id ${organizationId} does not exists`,
-          status: httpStatus.NOT_FOUND,
+          message: `User already belong to organization ${organizationId}`,
+          status: httpStatus.CONFLICT,
         }),
       );
-
-    const normalizedEmail = email.trim().toLowerCase();
-
-    const user = await userService.get({ email: normalizedEmail });
-
-    if (user)
-      return next(
-        new ServerError({
-          message: "User Already Exists...",
-          status: httpStatus.BAD_REQUEST,
-        }),
-      );
+    }
 
     const hashPassword = await bcrypt.hash(password, 10);
 
-    const result = await userService.create({
-      email: normalizedEmail,
+    const result: Omit<User, "password"> = await userService.create({
+      email,
       password: hashPassword,
       role: req.body.role ?? UserRoles.MEMBER,
-      organizationId: existsOrganizartion.id,
+      organizationId,
     });
 
-    console.log("result :: ", result);
-
-    if (result?.raw[0]) {
+    if (result) {
       return res.status(httpStatus.CREATED).send({
         message: "Member created successfully",
-        data: result.raw[0],
+        data: result,
         status: httpStatus.CREATED,
       });
     }
@@ -60,3 +57,21 @@ export const createMember = catchAsync(
     });
   },
 );
+
+export const getMembers = catchAsync(async (req: Request, res: Response) => {
+  const { organizationId } = req.user as User;
+
+  const members = await userService.getAll({
+    where: { organizationId, role: UserRoles.MEMBER },
+    order: { createdAt: "desc" },
+    select: {
+      password: false,
+      deletedAt: false,
+    },
+  });
+
+  return res.status(httpStatus.OK).send({
+    data: members,
+    status: httpStatus.OK,
+  });
+});

@@ -10,7 +10,6 @@ import {
   UpdateDateColumn,
   VersionColumn,
 } from "typeorm";
-import { Organizations } from "./Organizations.entity";
 import { Project } from "./Project.entity";
 import { User } from "./User.entity";
 
@@ -28,9 +27,6 @@ export class Task {
   @Column({ type: "enum", enum: TaskStatus, default: TaskStatus.TODO })
   @Index("task_status_idx")
   status: TaskStatus;
-
-  @ManyToOne(() => Organizations)
-  organization: Organizations;
 
   @VersionColumn()
   @Index("task_version_idx")

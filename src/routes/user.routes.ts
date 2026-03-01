@@ -1,6 +1,6 @@
 import express from "express";
 
-import { createMember } from "@controller";
+import { createMember, getMembers } from "@controller";
 import { isAdminRole, validate } from "@middlewares";
 import { createMemberSchema } from "@validators";
 
@@ -12,5 +12,7 @@ userRouter.post(
   validate(createMemberSchema),
   createMember,
 );
+
+userRouter.get("/members", isAdminRole, getMembers);
 
 export default userRouter;

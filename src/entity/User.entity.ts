@@ -48,7 +48,9 @@ export class User {
   })
   updatedDate: Date;
 
-  @ManyToOne(() => Organizations)
+  @ManyToOne(() => Organizations, (organization) => organization.id, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({
     name: "organization",
     foreignKeyConstraintName: "user_organization_fkey_id",

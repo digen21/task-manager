@@ -1,6 +1,7 @@
 import { AppDataSource } from "@config";
 import { Task } from "@entity";
 import { GetByTaskInput, UpdateTaskInput } from "@types";
+import { FindManyOptions, FindOptionsWhere } from "typeorm";
 
 class TaskService {
   constructor(
@@ -24,11 +25,11 @@ class TaskService {
       .where("id = :id", { id })
       .execute();
   }
-  get(args: GetByTaskInput) {
+  get(args?: FindOptionsWhere<GetByTaskInput>) {
     return this.taskRepository.findOneBy(args);
   }
-  getAll(args: GetByTaskInput) {
-    return this.taskRepository.find({ where: args });
+  getAll(args?: FindManyOptions<GetByTaskInput>) {
+    return this.taskRepository.find(args);
   }
 }
 

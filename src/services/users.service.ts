@@ -10,13 +10,7 @@ class UserService {
   ) {}
 
   create(createUserInput: UpdateUserInput) {
-    return this.dataSource
-      .createQueryBuilder()
-      .insert()
-      .into(User)
-      .values(createUserInput)
-      .returning("*")
-      .execute();
+    return this.useRepository.save(createUserInput);
   }
   update(id: string, updateUserInput: UpdateUserInput) {
     return this.dataSource

@@ -55,7 +55,6 @@ export const register = catchAsync(
     if (result) {
       return res.status(httpStatus.CREATED).send({
         message: "Registered Successfully...",
-        data: result,
         status: httpStatus.CREATED,
       });
     }
@@ -91,7 +90,11 @@ export const login = catchAsync(
     }
 
     const token = jwt.sign(
-      { userId: user.id, role: user.role! },
+      {
+        userId: user.id,
+        role: user.role!,
+        organizationId: user.organizationId,
+      },
       env.JWT_SECRET!,
       {
         expiresIn: "10d",

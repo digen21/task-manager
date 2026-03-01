@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -12,6 +13,7 @@ import { Organizations } from "./Organizations.entity";
 @Entity({
   name: "projects",
 })
+@Index(["organizationId", "name"], { unique: true })
 export class Project {
   @PrimaryGeneratedColumn("uuid") id: string;
 
@@ -26,7 +28,8 @@ export class Project {
   })
   createdAt: Date;
 
-  @CreateDateColumn({
+  @Column({
+    nullable: true,
     name: "deleted_at",
   })
   deletedAt: Date;
