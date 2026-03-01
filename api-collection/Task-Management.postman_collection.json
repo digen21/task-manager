@@ -1,0 +1,607 @@
+{
+  "info": {
+    "_postman_id": "2f6bcd51-e131-4b0c-9e3b-199fcad182e6",
+    "name": "Task-Management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "21463228"
+  },
+  "item": [
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"password\": \"abcd1234567\",\r\n    \"organizationName\": \"{{$randomCompanyName}}\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/auth/register",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const token = pm.response.json().token;\r",
+              "\r",
+              "if(token) pm.environment.set(\"TOKEN\", token)"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"rogers65@hotmail.com\",\r\n    \"password\": \"abcd1234567\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Profile",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const data = pm.response.json().data;\r",
+              "\r",
+              "if(data) pm.environment.set(\"organizationId\", organizationId.organizationId)"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/auth/profile",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "auth",
+            "profile"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Members",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"password\": \"abcd1234567\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/user/member",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "user",
+            "member"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Members",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/user/members?limit=2&page=3",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "user",
+            "members"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "2"
+            },
+            {
+              "key": "page",
+              "value": "3"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Project",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Task Management V222\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/projects",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "projects"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Projects",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/projects",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "projects"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Project Member",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"memberId\": \"bf795bc7-330d-4a93-8465-f40d1c9d1d46\",\r\n    \"projectId\": \"e41920da-b801-475a-88c0-fee9f27dd821\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/projects/project-members",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "projects",
+            "project-members"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Project Member by ProjectId",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/projects/project-members/:projectId",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "projects",
+            "project-members",
+            ":projectId"
+          ],
+          "variable": [
+            {
+              "key": "projectId",
+              "value": "e41920da-b801-475a-88c0-fee9f27dd821"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Task",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"title\": \"{{$randomJobTitle}}\",\r\n    \"projectId\": \"1df287f4-c1af-40ab-add8-500a46504b5d\",\r\n    \"dueDate\":\"{{$randomDateFuture}}\",\r\n    \"assigneeId\":\"bf795bc7-330d-4a93-8465-f40d1c9d1d46\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/tasks",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "tasks"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Task",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/tasks/:id",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "tasks",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "e1f5a4ca-0e44-477f-8bd8-28cb0c437c41"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Tasks",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/tasks?projectId=e41920da-b801-475a-88c0-fee9f27dd821",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "tasks"
+          ],
+          "query": [
+            {
+              "key": "projectId",
+              "value": "e41920da-b801-475a-88c0-fee9f27dd821"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Task",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"status\":\"DONE\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/tasks/:id",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "tasks",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "e1f5a4ca-0e44-477f-8bd8-28cb0c437c41"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Task Activities",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/task-activity/:taskId",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "task-activity",
+            ":taskId"
+          ],
+          "variable": [
+            {
+              "key": "taskId",
+              "value": "e1f5a4ca-0e44-477f-8bd8-28cb0c437c41"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Task Metrics",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer <JWT_TOKEN>"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:5000/api/task-activity?from=2026-03-01&to=2026-03-31&projectId=e41920da-b801-475a-88c0-fee9f27dd821",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "task-activity"
+          ],
+          "query": [
+            {
+              "key": "from",
+              "value": "2026-03-01"
+            },
+            {
+              "key": "to",
+              "value": "2026-03-31"
+            },
+            {
+              "key": "projectId",
+              "value": "e41920da-b801-475a-88c0-fee9f27dd821"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
