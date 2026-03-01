@@ -88,3 +88,57 @@ NOTE (Migration will be apply only after running `npm run migration:run` after r
  $ npm run start
 
 ```
+
+## Architecture overview
+
+- Tech Stack
+  - Runtime: Node.js with TypeScript
+  - Framework: Express.js
+  - ORM: TypeORM with MySQL
+  - Auth: Passport.js with JWT strategy
+  - Validation: Joi
+  - Logging: Winston
+
+- Modules
+  - Auth
+  - User
+  - Projects
+  - Tasks
+  - ActivityLog
+  - Project Members
+
+- Key Middlewares
+  - isAuth – JWT authentication via Passport
+  - allowedRoles – Role-based access control
+  - rateLimiter – Request throttling
+  - validate – Request validation with Joi
+  - errorHandler – Global error handling (`Database Errors`, `ServerError`)
+  - requestLogger – Request logging (`API Request Logging`)
+
+## Scaling approach & Performance strategy
+
+- Read Replicas - Separate read/write operations tp increase read potation faster (Mostly for analysts)
+
+- Query caching - Implement Redis Or any memory cache for frequent db queries
+
+- Connection Pool - Can configure max connection pools so that database can handle more requests
+
+- API Optimizations:
+  - response compression
+  - cursor based pagination
+
+- Monitoring:
+  - Motoring the system usage
+  - Slow query/api response check
+
+- Adding Resources
+
+## Security Considerations
+
+- JWT authentication with bcrypt password hashing
+- Rate limiting (100 req/15min general, 10 req/15min auth)
+- Helmet for HTTP headers
+- CORS enabled
+- Input validation with Joi
+- Password exclusion from responses
+- Environment variable validation

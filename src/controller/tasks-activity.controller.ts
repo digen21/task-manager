@@ -26,8 +26,6 @@ export const getTaskActivity = catchAsync(
       .orderBy("al.createdAt", "DESC")
       .getRawMany();
 
-    console.log("activities :: ", activities);
-
     res.status(httpStatus.OK).send({
       data: activities,
       status: httpStatus.OK,
