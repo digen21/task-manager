@@ -105,7 +105,7 @@ export const getTaskInfo = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const getTasks = catchAsync(async (req: Request, res: Response) => {
-  const { projectId, page = 1, limit = 10 } = req.query;
+  const { projectId, page = 1, limit = 10, status } = req.query;
 
   const { skip, limit: tale } = getPaginationOptions(
     Number(page),
@@ -117,12 +117,21 @@ export const getTasks = catchAsync(async (req: Request, res: Response) => {
     .createQueryBuilder("task")
     .leftJoin("task.project", "project")
     .leftJoin("task.assignee", "assignee")
-    .leftJoin(ActivityLogs, "al", "al.taskId = task.id")
+    .leftJoin(
+      ActivityLogs,
+      "al",
+      "al.taskId = task.id AND al.action = :action",
+      { action: "TASK_CREATED" },
+    )
     .leftJoin("al.performedBy", "creator")
     .where("task.project = :projectId", { projectId })
     .andWhere("task.deletedAt IS NULL");
 
-  const [tasks, total] = await Promise.all([
+  if (status) {
+    query.andWhere("task.status = :status", { status });
+  }
+
+  const [tasks, statusCount, total] = await Promise.all([
     query
       .clone()
       .select([
@@ -143,11 +152,19 @@ export const getTasks = catchAsync(async (req: Request, res: Response) => {
       .take(tale)
       .getRawMany(),
 
+    query
+      .clone()
+      .select("task.status", "status")
+      .addSelect("COUNT(task.id)", "count")
+      .groupBy("task.status")
+      .getRawMany(),
+
     query.clone().getCount(),
   ]);
 
   return res.status(httpStatus.OK).send({
     data: tasks.map(mapTask),
+    statusCount,
     meta: {
       total,
       page: Number(page),

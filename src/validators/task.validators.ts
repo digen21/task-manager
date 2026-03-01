@@ -33,6 +33,7 @@ export const getTaskIdParamsSchema = Joi.object({
 export const getTasksSchema = Joi.object({
   query: Joi.object({
     projectId: Joi.string().required(),
+    status: Joi.string().valid(TaskStatus).optional(),
     page: Joi.number().default(1),
     limit: Joi.number().default(10),
   }),
